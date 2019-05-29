@@ -1,0 +1,17 @@
+{
+  "name": "serial.ts",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "ssh://git@github.com/Tosuke/serial.ts.git",
+  "author": "Tosuke <tasukeprg@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "@tosuke/prettier-config": "^1.0.1",
+    "@types/jest": "^24.0.13",
+    "jest": "^24.8.0",
+    "prettier": "^1.17.1",
+    "ts-jest": "^24.0.2",
+    "ts-node": "^8.1.0",
+    "typescript": "^3.5.0-rc"
+  }
+}

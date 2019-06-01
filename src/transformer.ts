@@ -1,5 +1,5 @@
 import { ValidationResult, isOk } from './result'
-import { CombinedValidationError } from './errors'
+import { ValidationErrors } from './errors'
 
 type TransformFn<A, B> = (x: A) => ValidationResult<B>
 
@@ -21,7 +21,7 @@ export class Transformer<A, B> {
     if (isOk(r)) {
       return r.value
     } else {
-      throw new CombinedValidationError(r.errors)
+      throw new ValidationErrors(r.errors)
     }
   }
 
@@ -34,7 +34,7 @@ export class Transformer<A, B> {
     if (isOk(r)) {
       return r.value
     } else {
-      throw new CombinedValidationError(r.errors)
+      throw new ValidationErrors(r.errors)
     }
   }
 

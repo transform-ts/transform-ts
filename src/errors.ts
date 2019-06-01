@@ -33,9 +33,9 @@ function presentMemberErrorMessage(paths: Array<string | number>) {
   return `'${path}' is not found.`
 }
 
-export class CombinedValidationError extends Error {
+export class ValidationErrors extends Error {
   constructor(readonly errors: ReadonlyArray<ValidationError>) {
-    super("\n" + errors.map(e => `${e.type}: ${e.message}`).join("\n"))
-    this.name = 'ValidationError'
+    super('\n' + errors.map(e => `${e.type}: ${e.message}`).join('\n'))
+    this.name = 'ValidationErrors'
   }
 }

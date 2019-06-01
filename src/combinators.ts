@@ -1,16 +1,16 @@
-import { BiTransformer } from './transformer'
+import { Transformer } from './transformer'
 import { ok, error, combine, ValidationResult, isOk } from './result'
-import { ValidationTypeError, ValidationError, ValidationMemberError } from './error'
+import { ValidationTypeError, ValidationError, ValidationMemberError } from './errors'
 
-export function optional<A, B>(fab: BiTransformer<A, B>): BiTransformer<A | undefined, B | undefined> {
-  return new BiTransformer(
+export function optional<A, B>(fab: Transformer<A, B>): Transformer<A | undefined, B | undefined> {
+  return new Transformer(
     a => (a === undefined ? ok(undefined) : fab.transform(a)),
     b => (b === undefined ? ok(undefined) : fab.inverseTransform(b)),
   )
 }
 
-export function nullable<A, B>(fab: BiTransformer<A, B>): BiTransformer<A | null, B | null> {
-  return new BiTransformer(
+export function nullable<A, B>(fab: Transformer<A, B>): Transformer<A | null, B | null> {
+  return new Transformer(
     a => (a === null ? ok(null) : fab.transform(a)),
     b => (b === null ? ok(null) : fab.inverseTransform(b)),
   )
@@ -31,8 +31,8 @@ function processArrayItem<T>(r: ValidationResult<T>, i: number): ValidationResul
   return error(...errors)
 }
 
-export function array<A>(f: BiTransformer<unknown, A>): BiTransformer<unknown, A[]> {
-  return new BiTransformer<unknown, A[]>(
+export function array<A>(f: Transformer<unknown, A>): Transformer<unknown, A[]> {
+  return new Transformer<unknown, A[]>(
     u =>
       Array.isArray(u)
         ? combine(u.map((v, i) => processArrayItem(f.transform(v), i)))
@@ -41,13 +41,13 @@ export function array<A>(f: BiTransformer<unknown, A>): BiTransformer<unknown, A
   )
 }
 
-type MapBiTransformer<A> = { [K in keyof A]: BiTransformer<unknown, A[K]> }
-export function tuple<TS extends any[]>(...fs: MapBiTransformer<TS>): BiTransformer<unknown, TS> {
-  return new BiTransformer<unknown, TS>(
+type MapTransformer<A> = { [K in keyof A]: Transformer<unknown, A[K]> }
+export function tuple<TS extends any[]>(...fs: MapTransformer<TS>): Transformer<unknown, TS> {
+  return new Transformer<unknown, TS>(
     u => {
       if (!Array.isArray(u)) return error(new ValidationTypeError('array', typeof u))
       if (u.length !== fs.length)
-        return error(new ValidationError('invalid-length', `expect ${fs.length}, but got ${u.length}`)) // TODO: Improve Error
+        return error(new ValidationError('InvalidLengthError', `expect ${fs.length}, but got ${u.length}`)) // TODO: Improve Error
       return (combine(fs.map((f, i) => f.transform(u[i]))) as unknown) as ValidationResult<TS>
     },
     ts => combine(fs.map((f, i) => f.inverseTransform(ts[i]))),
@@ -66,9 +66,9 @@ function processObjError(errors: ValidationError[], key: string): ValidationErro
   })
 }
 
-export function obj<A>(schema: MapBiTransformer<A>): BiTransformer<unknown, A> {
-  const s = (schema as unknown) as { [key: string]: BiTransformer<unknown, A[keyof A]> }
-  return new BiTransformer<unknown, A>(
+export function obj<A>(schema: MapTransformer<A>): Transformer<unknown, A> {
+  const s = (schema as unknown) as { [key: string]: Transformer<unknown, A[keyof A]> }
+  return new Transformer<unknown, A>(
     (u: any) => {
       if (typeof u !== 'object') return error(new ValidationTypeError('object', typeof u))
       if (u === null) return error(new ValidationTypeError('object', 'null'))
@@ -83,7 +83,7 @@ export function obj<A>(schema: MapBiTransformer<A>): BiTransformer<unknown, A> {
           errors.push(...processObjError(r.errors, k))
         }
       }
-      return errors.length === 0 ?  ok(obj as A) : error(...errors)
+      return errors.length === 0 ? ok(obj as A) : error(...errors)
     },
     (a: any) => {
       let obj: Record<string, unknown> = {}

@@ -1,7 +1,7 @@
-import { BiTransformer } from './transformer'
+import { Transformer } from './transformer'
 import { ok } from './result'
 import { any, string, number } from './primitives'
-import { array, optional, obj } from './combinator'
+import { array, optional, obj } from './combinators'
 
 const input = {
   users: [{ name: 'kani' }, {}, {}],
@@ -10,7 +10,7 @@ const input = {
 const serde = obj({
   users: array(
     obj({
-      name: string
+      name: string,
     }),
   ),
 })

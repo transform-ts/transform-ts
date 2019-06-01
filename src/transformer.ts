@@ -1,13 +1,13 @@
 import { ValidationResult, isOk } from './result'
-import { CombinedValidationError } from './error';
+import { CombinedValidationError } from './errors'
 
-type Transformer<A, B> = (x: A) => ValidationResult<B>
+type TransformFn<A, B> = (x: A) => ValidationResult<B>
 
-export class BiTransformer<A, B> {
-  private _transformer: Transformer<A, B>
-  private _inverseTransformer: Transformer<B, A>
+export class Transformer<A, B> {
+  private _transformer: TransformFn<A, B>
+  private _inverseTransformer: TransformFn<B, A>
 
-  constructor(transformer: Transformer<A, B>, inverseTransformer: Transformer<B, A>) {
+  constructor(transformer: TransformFn<A, B>, inverseTransformer: TransformFn<B, A>) {
     this._transformer = transformer
     this._inverseTransformer = inverseTransformer
   }
@@ -18,7 +18,7 @@ export class BiTransformer<A, B> {
 
   transformOrThrow(x: A): B {
     const r = this.transform(x)
-    if(isOk(r)) {
+    if (isOk(r)) {
       return r.value
     } else {
       throw new CombinedValidationError(r.errors)
@@ -31,19 +31,19 @@ export class BiTransformer<A, B> {
 
   inverseTransformOrThrow(x: B): A {
     const r = this.inverseTransform(x)
-    if(isOk(r)) {
+    if (isOk(r)) {
       return r.value
     } else {
       throw new CombinedValidationError(r.errors)
     }
   }
 
-  invert(): BiTransformer<B, A> {
-    return new BiTransformer(this._inverseTransformer, this._transformer)
+  invert(): Transformer<B, A> {
+    return new Transformer(this._inverseTransformer, this._transformer)
   }
 
-  compose<C>(fbc: BiTransformer<B, C>): BiTransformer<A, C> {
-    return new BiTransformer<A, C>(
+  compose<C>(fbc: Transformer<B, C>): Transformer<A, C> {
+    return new Transformer<A, C>(
       a => {
         const r = this.transform(a)
         return isOk(r) ? fbc.transform(r.value) : r

@@ -1,5 +1,5 @@
 {
-  "name": "serial.ts",
+  "name": "transform-ts",
   "version": "1.0.0",
   "main": "index.js",
   "repository": "ssh://git@github.com/Tosuke/serial.ts.git",

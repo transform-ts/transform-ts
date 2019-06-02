@@ -101,6 +101,9 @@ const f: Transformer<unknown, { a: number; b: string }> = $.obj({
 })
 ```
 
+You can construct complex Transformer with simple transformers and combinators.
+Try it out!
+
 ## Example
 
 user.json
@@ -151,4 +154,20 @@ const userJson = JSON.stringify(userTransformer.invert().transformOrThrow(user))
 
 ## Custom Transformer
 
-// TODO
+You can write your own transformer.
+
+```ts
+/*
+Transformer requires `A` to `B` and `B` to `A` transformation.
+`A` to `B` transformation is a function `(a: A) => ValidationResult<B>`.
+You can use `$.ok` and `$.error` to create `ValidationResult`.
+Returning `$.ok(value)` represents that transformation is success with `value`.
+Returning `$.error(error)` represents that error(s) has occured.
+*/
+const stringToDate = new $.Transformer<string, Date>(str => $.ok(new Date(str)), date => $.ok(date.toISOString()))
+
+const date = stringToDate.transformOrThrow('2019-05-01T15:13:34.459Z')
+const dateString = stringToDate.inverseTransformOrThrow(new Date())
+```
+
+Using custom transformers, you can transform `unknown` to any type you like.

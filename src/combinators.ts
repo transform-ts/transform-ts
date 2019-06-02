@@ -19,15 +19,7 @@ export function nullable<A, B>(fab: Transformer<A, B>): Transformer<A | null, B 
 function processArrayItem<T>(r: ValidationResult<T>, i: number): ValidationResult<T> {
   if (isOk(r)) return r
 
-  const errors = r.errors.map(err => {
-    if (err instanceof ValidationTypeError && err.real === 'undefined') {
-      return new ValidationMemberError([i])
-    }
-    if (err instanceof ValidationMemberError) {
-      return new ValidationMemberError([i, ...err.paths])
-    }
-    return err
-  })
+  const errors = r.errors.map(err => err.addParent(i))
   return error(...errors)
 }
 
@@ -36,7 +28,7 @@ export function array<A>(f: Transformer<unknown, A>): Transformer<unknown, A[]> 
     u =>
       Array.isArray(u)
         ? combine(u.map((v, i) => processArrayItem(f.transform(v), i)))
-        : error(new ValidationTypeError('array', typeof u)),
+        : error(new ValidationTypeError([], 'array', typeof u)),
     aa => combine(aa.map(a => f.inverseTransform(a))),
   )
 }
@@ -45,9 +37,9 @@ type MapTransformer<A> = { [K in keyof A]: Transformer<unknown, A[K]> }
 export function tuple<TS extends any[]>(...fs: MapTransformer<TS>): Transformer<unknown, TS> {
   return new Transformer<unknown, TS>(
     u => {
-      if (!Array.isArray(u)) return error(new ValidationTypeError('array', typeof u))
+      if (!Array.isArray(u)) return error(new ValidationTypeError([], 'array', typeof u))
       if (u.length !== fs.length)
-        return error(new ValidationError('InvalidLengthError', `expect ${fs.length}, but got ${u.length}`)) // TODO: Improve Error
+        return error(new ValidationError('InvalidLengthError', [], `expect ${fs.length}, but got ${u.length}`)) // TODO: Improve Error
       return (combine(fs.map((f, i) => f.transform(u[i]))) as unknown) as ValidationResult<TS>
     },
     ts => combine(fs.map((f, i) => f.inverseTransform(ts[i]))),
@@ -59,10 +51,7 @@ function processObjError(errors: ValidationError[], key: string): ValidationErro
     if (err instanceof ValidationTypeError && err.real === 'undefined') {
       return new ValidationMemberError([key])
     }
-    if (err instanceof ValidationMemberError) {
-      return new ValidationMemberError([key, ...err.paths])
-    }
-    return err
+    return err.addParent(key)
   })
 }
 
@@ -70,8 +59,8 @@ export function obj<A>(schema: MapTransformer<A>): Transformer<unknown, A> {
   const s = (schema as unknown) as { [key: string]: Transformer<unknown, A[keyof A]> }
   return new Transformer<unknown, A>(
     (u: any) => {
-      if (typeof u !== 'object') return error(new ValidationTypeError('object', typeof u))
-      if (u === null) return error(new ValidationTypeError('object', 'null'))
+      if (typeof u !== 'object') return error(new ValidationTypeError([], 'object', typeof u))
+      if (u === null) return error(new ValidationTypeError([], 'object', 'null'))
 
       let obj: Record<string, unknown> = {}
       let errors: ValidationError[] = []

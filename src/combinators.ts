@@ -1,91 +1,122 @@
-import { Transformer } from './transformer'
-import { ok, error, combine, ValidationResult, isOk } from './result'
-import { ValidationTypeError, ValidationError, ValidationMemberError } from './errors'
+import { Transformer } from "./transformer";
+import { ok, error, combine, ValidationResult, isOk } from "./result";
+import {
+  ValidationTypeError,
+  ValidationError,
+  ValidationMemberError
+} from "./errors";
 
-export function optional<A, B>(fab: Transformer<A, B>): Transformer<A | undefined, B | undefined> {
+export function optional<A, B>(
+  fab: Transformer<A, B>
+): Transformer<A | undefined, B | undefined> {
   return new Transformer(
     a => (a === undefined ? ok(undefined) : fab.transform(a)),
-    b => (b === undefined ? ok(undefined) : fab.inverseTransform(b)),
-  )
+    b => (b === undefined ? ok(undefined) : fab.inverseTransform(b))
+  );
 }
 
-export function nullable<A, B>(fab: Transformer<A, B>): Transformer<A | null, B | null> {
+export function nullable<A, B>(
+  fab: Transformer<A, B>
+): Transformer<A | null, B | null> {
   return new Transformer(
     a => (a === null ? ok(null) : fab.transform(a)),
-    b => (b === null ? ok(null) : fab.inverseTransform(b)),
-  )
+    b => (b === null ? ok(null) : fab.inverseTransform(b))
+  );
 }
 
-function processArrayItem<T>(r: ValidationResult<T>, i: number): ValidationResult<T> {
-  if (isOk(r)) return r
+function processArrayItem<T>(
+  r: ValidationResult<T>,
+  i: number
+): ValidationResult<T> {
+  if (isOk(r)) return r;
 
-  const errors = r.errors.map(err => err.addParent(i))
-  return error(...errors)
+  const errors = r.errors.map(err => err.addParent(i));
+  return error(...errors);
 }
 
-export function array<A>(f: Transformer<unknown, A>): Transformer<unknown, A[]> {
+export function array<A>(
+  f: Transformer<unknown, A>
+): Transformer<unknown, A[]> {
   return new Transformer<unknown, A[]>(
     u =>
       Array.isArray(u)
         ? combine(u.map((v, i) => processArrayItem(f.transform(v), i)))
-        : error(new ValidationTypeError([], 'array', typeof u)),
-    aa => combine(aa.map(a => f.inverseTransform(a))),
-  )
+        : error(new ValidationTypeError([], "array", typeof u)),
+    aa => combine(aa.map(a => f.inverseTransform(a)))
+  );
 }
 
-type MapTransformer<A> = { [K in keyof A]: Transformer<unknown, A[K]> }
-export function tuple<TS extends any[]>(...fs: MapTransformer<TS>): Transformer<unknown, TS> {
+type MapTransformer<A> = { [K in keyof A]: Transformer<unknown, A[K]> };
+export function tuple<TS extends any[]>(
+  ...fs: MapTransformer<TS>
+): Transformer<unknown, TS> {
   return new Transformer<unknown, TS>(
     u => {
-      if (!Array.isArray(u)) return error(new ValidationTypeError([], 'array', typeof u))
+      if (!Array.isArray(u))
+        return error(new ValidationTypeError([], "array", typeof u));
       if (u.length !== fs.length)
-        return error(new ValidationError('InvalidLengthError', [], `expect ${fs.length}, but got ${u.length}`)) // TODO: Improve Error
-      return (combine(fs.map((f, i) => f.transform(u[i]))) as unknown) as ValidationResult<TS>
+        return error(
+          new ValidationError(
+            "InvalidLengthError",
+            [],
+            `expect ${fs.length}, but got ${u.length}`
+          )
+        ); // TODO: Improve Error
+      return (combine(
+        fs.map((f, i) => f.transform(u[i]))
+      ) as unknown) as ValidationResult<TS>;
     },
-    ts => combine(fs.map((f, i) => f.inverseTransform(ts[i]))),
-  )
+    ts => combine(fs.map((f, i) => f.inverseTransform(ts[i])))
+  );
 }
 
-function processObjError(errors: ValidationError[], key: string): ValidationError[] {
+function processObjError(
+  errors: ValidationError[],
+  key: string
+): ValidationError[] {
   return errors.map(err => {
-    if (err instanceof ValidationTypeError && err.real === 'undefined') {
-      return new ValidationMemberError([key])
+    if (err instanceof ValidationTypeError && err.real === "undefined") {
+      return new ValidationMemberError([key]);
     }
-    return err.addParent(key)
-  })
+    return err.addParent(key);
+  });
 }
 
 export function obj<A>(schema: MapTransformer<A>): Transformer<unknown, A> {
-  const s = (schema as unknown) as { [key: string]: Transformer<unknown, A[keyof A]> }
+  const s = (schema as unknown) as {
+    [key: string]: Transformer<unknown, A[keyof A]>;
+  };
   return new Transformer<unknown, A>(
     (u: any) => {
-      if (typeof u !== 'object') return error(new ValidationTypeError([], 'object', typeof u))
-      if (u === null) return error(new ValidationTypeError([], 'object', 'null'))
+      if (typeof u !== "object")
+        return error(new ValidationTypeError([], "object", typeof u));
+      if (u === null)
+        return error(new ValidationTypeError([], "object", "null"));
 
-      let obj: Record<string, unknown> = {}
-      let errors: ValidationError[] = []
+      let obj: Record<string, unknown> = {};
+      let errors: ValidationError[] = [];
       for (const [k, f] of Object.entries(s)) {
-        const r = f.transform(u[k])
+        const r = f.transform(u[k]);
         if (isOk(r)) {
-          obj[k] = r.value
+          obj[k] = r.value;
         } else {
-          errors.push(...processObjError(r.errors, k))
+          errors.push(...processObjError(r.errors, k));
         }
       }
-      return errors.length === 0 ? ok(obj as A) : error(...errors)
+      return errors.length === 0 ? ok(obj as A) : error(...errors);
     },
     (a: any) => {
-      let obj: Record<string, unknown> = {}
-      let errors: ValidationError[] = []
+      let obj: Record<string, unknown> = {};
+      let errors: ValidationError[] = [];
       for (const [k, f] of Object.entries(s)) {
-        const r = f.inverseTransform(a[k])
+        const r = f.inverseTransform(a[k]);
         if (isOk(r)) {
-          obj[k] = r.value
+          obj[k] = r.value;
         } else {
-          errors.push(...processObjError(r.errors, k))
+          errors.push(...processObjError(r.errors, k));
         }
       }
-      return errors.length === 0 ? ok(obj) : error(...errors)
-    },
-  )
+      return errors.length === 0 ? ok(obj) : error(...errors);
+    }
+  );
 }

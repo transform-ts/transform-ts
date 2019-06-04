@@ -1,10 +1,13 @@
 {
   "name": "transform-ts",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "main": "index.js",
-  "repository": "ssh://git@github.com/Tosuke/serial.ts.git",
+  "repository": "ssh://git@github.com/Tosuke/transform-ts.git",
   "author": "Tosuke <tasukeprg@gmail.com>",
   "license": "MIT",
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json"
+  },
   "devDependencies": {
     "@tosuke/prettier-config": "^1.0.1",
     "@types/jest": "^24.0.13",

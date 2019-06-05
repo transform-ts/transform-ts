@@ -1,10 +1,15 @@
 {
   "name": "transform-ts",
   "version": "0.0.1",
-  "main": "index.js",
   "repository": "ssh://git@github.com/Tosuke/transform-ts.git",
   "author": "Tosuke <tasukeprg@gmail.com>",
   "license": "MIT",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "package.json",
+    "dist/**/*"
+  ],
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "format": "prettier --write \"src/**/*.ts\""

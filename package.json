@@ -11,6 +11,8 @@
     "dist/**/*"
   ],
   "scripts": {
+    "dev": "jest --watch",
+    "test": "jest",
     "build": "tsc -p tsconfig.build.json",
     "format": "prettier --write \"src/**/*.ts\""
   },

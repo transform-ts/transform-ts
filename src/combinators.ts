@@ -1,6 +1,7 @@
 import { Transformer } from './transformer'
 import { ok, error, combine, ValidationResult, isOk } from './result'
 import { ValidationTypeError, ValidationError, ValidationMemberError } from './errors'
+import { toTypeName } from './util'
 
 export function optional<A, B>(fab: Transformer<A, B>): Transformer<A | undefined, B | undefined> {
   return new Transformer(
@@ -28,7 +29,7 @@ export function array<A>(f: Transformer<unknown, A>): Transformer<unknown, A[]> 
     u =>
       Array.isArray(u)
         ? combine(u.map((v, i) => processArrayItem(f.transform(v), i)))
-        : error(new ValidationTypeError([], 'array', typeof u)),
+        : error(new ValidationTypeError([], 'array', toTypeName(u))),
     aa => combine(aa.map(a => f.inverseTransform(a))),
   )
 }
@@ -37,12 +38,12 @@ type MapTransformer<A> = { [K in keyof A]: Transformer<unknown, A[K]> }
 export function tuple<TS extends any[]>(...fs: MapTransformer<TS>): Transformer<unknown, TS> {
   return new Transformer<unknown, TS>(
     u => {
-      if (!Array.isArray(u)) return error(new ValidationTypeError([], 'array', typeof u))
+      if (!Array.isArray(u)) return error(new ValidationTypeError([], 'array', toTypeName(u)))
       if (u.length !== fs.length)
         return error(new ValidationError('InvalidLengthError', [], `expect ${fs.length}, but got ${u.length}`)) // TODO: Improve Error
-      return (combine(fs.map((f, i) => f.transform(u[i]))) as unknown) as ValidationResult<TS>
+      return (combine(fs.map((f, i) => processArrayItem(f.transform(u[i]), i))) as unknown) as ValidationResult<TS>
     },
-    ts => combine(fs.map((f, i) => f.inverseTransform(ts[i]))),
+    ts => combine(fs.map((f, i) => processArrayItem(f.inverseTransform(ts[i]), i))),
   )
 }
 
@@ -61,7 +62,7 @@ export function obj<A>(schema: MapTransformer<A>): Transformer<unknown, A> {
   }
   return new Transformer<unknown, A>(
     (u: any) => {
-      if (typeof u !== 'object') return error(new ValidationTypeError([], 'object', typeof u))
+      if (typeof u !== 'object') return error(new ValidationTypeError([], 'object', toTypeName(u)))
       if (u === null) return error(new ValidationTypeError([], 'object', 'null'))
 
       let obj: Record<string, unknown> = {}

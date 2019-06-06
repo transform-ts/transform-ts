@@ -1,6 +1,6 @@
 {
   "name": "transform-ts",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "repository": "ssh://git@github.com/Tosuke/transform-ts.git",
   "author": "Tosuke <tasukeprg@gmail.com>",
   "license": "MIT",

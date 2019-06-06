@@ -7,20 +7,20 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-        keys:
-          - v1-dependencies-{{ checksum "yarn.lock" }}
+          keys:
+            - v1-dependencies-{{ checksum "yarn.lock" }}
       - run:
-        name: Install Dependencies
-        command: yarn install
+          name: Install Dependencies
+          command: yarn install
       - save_cache:
-        key: v1-dependencies-{{ checksum "yarn.lock" }}
-        paths:
-          - ./node_modules
-          - ~/.cache/yarn
+          key: v1-dependencies-{{ checksum "yarn.lock" }}
+          paths:
+            - ./node_modules
+            - ~/.cache/yarn
       - run:
-        name: Type check
-        command: yarn run tsc --noEmit
+          name: Type check
+          command: yarn run tsc --noEmit
       - run:
-        name: Test
-        command: yarn test --coverage
+          name: Test
+          command: yarn test --coverage
 

@@ -30,7 +30,7 @@ export function array<A>(f: Transformer<unknown, A>): Transformer<unknown, A[]> 
       Array.isArray(u)
         ? combine(u.map((v, i) => processArrayItem(f.transform(v), i)))
         : error(new ValidationTypeError([], 'array', toTypeName(u))),
-    aa => combine(aa.map(a => f.inverseTransform(a))),
+    aa => combine(aa.map((a, i) => processArrayItem(f.inverseTransform(a), i))),
   )
 }
 

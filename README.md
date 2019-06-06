@@ -1,5 +1,15 @@
 # Transform.ts
 
+Powerful object serialization/deserialization library.
+
+- Easy to use
+- Flexible
+- Written in TypeScript
+
+# How to use
+
+`$ npm install transform-ts` or `$ yarn add transform-ts`
+
 # Usage
 
 ## Transformer
@@ -56,7 +66,7 @@ const fac: Transformer<A, C> = fab.compose(fbc)
 const num = $.number.transformOrThrow(123 as unknown)
 ```
 
-## Combinators
+## Transformer Combinators
 
 ### `nullable`
 

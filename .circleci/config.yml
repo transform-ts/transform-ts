@@ -23,4 +23,7 @@ jobs:
       - run:
           name: Test
           command: yarn test --coverage
+      - run:
+          name: Codecov
+          command: yarn run codecov
 

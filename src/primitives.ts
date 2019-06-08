@@ -24,7 +24,7 @@ export function typeOf(
   return transformer
 }
 
-export function instanceOf<A>(Clazz: { new (...args: any[]): A; name: string }): Transformer<unknown, A> {
+export function instanceOf<A>(Clazz: { new (...args: any[]): A }): Transformer<unknown, A> {
   if (transformerCache.has(Clazz)) return transformerCache.get(Clazz)!
   const transform = (u: unknown) =>
     u instanceof Clazz ? ok(u) : error(new ValidationTypeError([], Clazz.name, toTypeName(u)))

@@ -2,6 +2,21 @@ import * as $ from '../primitives'
 import { ValidationTypeError } from '../errors'
 import { ok, error } from '../result'
 
+describe('instanceOf', () => {
+  class A {}
+  class EA extends A {}
+  class B {}
+
+  it('allows values which is an instance of provided class', () => {
+    expect($.instanceOf(A).transform(new A())).toEqual(ok(new A()))
+    expect($.instanceOf(A).transform(new EA())).toEqual(ok(new EA()))
+  })
+
+  it('disallows values which is not', () => {
+    expect($.instanceOf(A).transform(new B())).toEqual(error(new ValidationTypeError([], 'A', 'B')))
+  })
+})
+
 describe('any', () => {
   it('alllows all values except `undefined` and `null`', () => {
     expect($.any.transform(10)).toEqual(ok(10))

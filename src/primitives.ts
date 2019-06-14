@@ -1,6 +1,6 @@
 import { Transformer } from './transformer'
 import { ok, error } from './result'
-import { ValidationTypeError } from './errors'
+import { ValidationTypeError, ValidationError } from './errors'
 import { toTypeName } from './util'
 
 const transformerCache = new Map<unknown, Transformer<unknown, any>>()
@@ -18,7 +18,7 @@ export function typeOf(
 ): Transformer<unknown, any> {
   if (transformerCache.has(type)) return transformerCache.get(type)!
   const transform = (u: unknown) =>
-    typeof u === type ? ok(u) : error(new ValidationTypeError([], type, toTypeName(u)))
+    typeof u === type ? ok(u) : error(ValidationError.from(new ValidationTypeError(type, toTypeName(u))))
   const transformer = new Transformer<unknown, any>(transform, transform)
   transformerCache.set(type, transformer)
   return transformer
@@ -27,13 +27,14 @@ export function typeOf(
 export function instanceOf<A>(Clazz: { new (...args: any[]): A }): Transformer<unknown, A> {
   if (transformerCache.has(Clazz)) return transformerCache.get(Clazz)!
   const transform = (u: unknown) =>
-    u instanceof Clazz ? ok(u) : error(new ValidationTypeError([], Clazz.name, toTypeName(u)))
+    u instanceof Clazz ? ok(u) : error(ValidationError.from(new ValidationTypeError(Clazz.name, toTypeName(u))))
   const transformer = new Transformer<unknown, A>(transform, transform)
   transformerCache.set(Clazz, transformer)
   return transformer
 }
 
-const noNullOrUndefined = (u: unknown) => (u != null ? ok(u) : error(new ValidationTypeError([], 'any', toTypeName(u))))
+const noNullOrUndefined = (u: unknown) =>
+  u != null ? ok(u) : error(ValidationError.from(new ValidationTypeError('any', toTypeName(u))))
 
 export const any = new Transformer<unknown, unknown>(noNullOrUndefined, noNullOrUndefined)
 

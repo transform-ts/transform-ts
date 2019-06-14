@@ -15,40 +15,32 @@ export class ValidationError extends Error {
   static from(error: unknown): ValidationError {
     if (error instanceof ValidationError) return error
     if (error instanceof Error) {
-      return new ValidationError(error.name, [], error.message)
+      return new ValidationError([], error)
     }
-    return new ValidationError(`<${typeof error}>`, [], `${error}`)
+    return new ValidationError([], new Error(`${error}`))
   }
 
-  constructor(readonly type: string, readonly path: Array<string | number>, readonly description: string) {
-    super(`in ${presentPath(path)}, ${type}: ${description}`)
+  constructor(readonly path: Array<string | number>, readonly error: Error) {
+    super(`in ${presentPath(path)}, ${error.name}: ${error.message}`)
     this.name = 'ValidationError'
   }
 
   addParent(parent: string | number) {
-    return new ValidationError(this.type, [parent, ...this.path], this.description)
+    return new ValidationError([parent, ...this.path], this.error)
   }
 }
 
-export class ValidationTypeError extends ValidationError {
-  constructor(readonly path: Array<string | number>, readonly expect: string, readonly real: string) {
-    super('TypeError', path, `expect '${expect}', but got '${real}'`)
+export class ValidationTypeError extends Error {
+  constructor(readonly expect: string, readonly actual: string) {
+    super(`expect '${expect}', but got '${actual}'`)
     this.name = 'ValidationTypeError'
   }
-
-  addParent(parent: string | number) {
-    return new ValidationTypeError([parent, ...this.path], this.expect, this.real)
-  }
 }
 
-export class ValidationMemberError extends ValidationError {
-  constructor(readonly path: Array<string | number>) {
-    super('MemberError', path, 'not found')
+export class ValidationMemberError extends Error {
+  constructor() {
+    super('not found')
     this.name = 'ValidationMemberError'
-  }
-
-  addParent(parent: string | number) {
-    return new ValidationMemberError([parent, ...this.path])
   }
 }
 

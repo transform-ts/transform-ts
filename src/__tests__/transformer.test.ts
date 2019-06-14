@@ -9,7 +9,7 @@ describe('Transformer', () => {
     transformer = new Transformer<string, number>(
       s => {
         const r = parseInt(s, 10)
-        if (isNaN(r)) return error(ValidationError.from(new Error('Invalid Input')))
+        if (isNaN(r)) return error(ValidationError.from('Invalid Input'))
         return ok(r)
       },
       n => ok(`${n}`),
@@ -22,14 +22,14 @@ describe('Transformer', () => {
   })
 
   it('return errors when error is occured', () => {
-    expect(transformer.transform('ten')).toEqual(error(ValidationError.from(new Error('Invalid Input'))))
+    expect(transformer.transform('ten')).toEqual(error(ValidationError.from('Invalid Input')))
   })
 
   it('can be inverted', () => {
     const inverted = transformer.invert()
     expect(inverted.transform(10)).toEqual(ok('10'))
     expect(inverted.inverseTransform('10')).toEqual(ok(10))
-    expect(inverted.inverseTransform('ten')).toEqual(error(ValidationError.from(new Error('Invalid Input'))))
+    expect(inverted.inverseTransform('ten')).toEqual(error(ValidationError.from('Invalid Input')))
   })
 
   it('can be composed', () => {
@@ -38,7 +38,7 @@ describe('Transformer', () => {
 
     expect(composed.transform('10')).toEqual(ok(true))
     expect(composed.inverseTransform(true)).toEqual(ok('1'))
-    expect(composed.transform('ten')).toEqual(error(ValidationError.from(new Error('Invalid Input'))))
+    expect(composed.transform('ten')).toEqual(error(ValidationError.from('Invalid Input')))
   })
 
   test('Associative Law', () => {

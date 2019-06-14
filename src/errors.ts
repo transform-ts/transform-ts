@@ -2,7 +2,7 @@ function presentPath(path: Array<string | number>): string {
   if (path.length === 0) return '<root>'
   return path
     .map((v, i) => {
-      if (typeof v === 'string' && /^[a-zA-Z]\w*$/.test(v)) {
+      if (typeof v === 'string' && /^[a-zA-Z_]\w*$/.test(v)) {
         return i !== 0 ? `.${v}` : v
       } else {
         return `[${JSON.stringify(v)}]`

@@ -25,6 +25,10 @@ export class ValidationError extends Error {
     this.name = 'ValidationError'
   }
 
+  get pathString(): string {
+    return presentPath(this.path)
+  }
+
   addParent(parent: string | number) {
     return new ValidationError([parent, ...this.path], this.error)
   }

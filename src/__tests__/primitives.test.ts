@@ -17,6 +17,22 @@ describe('instanceOf', () => {
   })
 })
 
+describe('literal', () => {
+  it('allows strings which equal to one of provided strings', () => {
+    expect($.literal('hoge', 'piyo').transform('hoge')).toEqual(ok('hoge'))
+    expect($.literal('hoge', 'piyo').transform('piyo')).toEqual(ok('piyo'))
+  })
+
+  it('disallows values which is not', () => {
+    expect($.literal('hoge').transform(1)).toEqual(
+      error(ValidationError.from(new ValidationTypeError("'hoge'", 'number'))),
+    )
+    expect($.literal('hoge', 'piyo').transform('foo')).toEqual(
+      error(ValidationError.from(new ValidationTypeError("'hoge' | 'piyo'", "'foo'"))),
+    )
+  })
+})
+
 describe('any', () => {
   it('alllows all values except `undefined` and `null`', () => {
     expect($.any.transform(10)).toEqual(ok(10))

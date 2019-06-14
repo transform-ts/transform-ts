@@ -2,6 +2,7 @@ import { Transformer } from './transformer'
 import { ok, error } from './result'
 import { ValidationTypeError, ValidationError } from './errors'
 import { toTypeName } from './util'
+import { tsUnknownKeyword } from '@babel/types'
 
 const transformerCache = new Map<unknown, Transformer<unknown, any>>()
 
@@ -31,6 +32,17 @@ export function instanceOf<A>(Clazz: { new (...args: any[]): A }): Transformer<u
   const transformer = new Transformer<unknown, A>(transform, transform)
   transformerCache.set(Clazz, transformer)
   return transformer
+}
+
+export function literal<LS extends string[]>(...literals: LS): Transformer<unknown, LS[number]> {
+  const expectedTypeStr = literals.map(l => `'${l}'`).join(' | ')
+  const transform = (u: unknown) => {
+    if (typeof u !== 'string')
+      return error(ValidationError.from(new ValidationTypeError(expectedTypeStr, toTypeName(u))))
+    if (!literals.includes(u)) return error(ValidationError.from(new ValidationTypeError(expectedTypeStr, `'${u}'`)))
+    return ok(u as LS[number])
+  }
+  return new Transformer<unknown, LS[number]>(transform, transform)
 }
 
 const noNullOrUndefined = (u: unknown) =>

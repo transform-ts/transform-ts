@@ -1,7 +1,8 @@
 import { Transformer } from './transformer'
-import { ok, error, combine, ValidationResult, isOk } from './result'
+import { ok, error, combine, ValidationResult, isOk, Result } from './result'
 import { ValidationTypeError, ValidationError, ValidationMemberError } from './errors'
 import { toTypeName } from './util'
+import { number } from './primitives'
 
 export function optional<A, B>(fab: Transformer<A, B>): Transformer<A | undefined, B | undefined> {
   return new Transformer(
@@ -97,4 +98,17 @@ export function obj<A>(schema: MapTransformer<A>): Transformer<unknown, A> {
       return errors.length === 0 ? ok(obj) : error(...errors)
     },
   )
+}
+
+export function either<TS extends [any, ...any[]]>(
+  ...fs: { [K in keyof TS]: Transformer<unknown, TS[K]> }
+): Transformer<unknown, TS[number]> {
+  return new Transformer(a => {
+    let result: ValidationResult<TS[number]>
+    for (const f of fs) {
+      result = f.transform(a)
+      if (isOk(result)) return result
+    }
+    return result!
+  }, ok)
 }

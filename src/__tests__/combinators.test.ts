@@ -1,7 +1,8 @@
-import { nullable, optional, array, tuple, obj } from '../combinators'
+import { nullable, optional, array, tuple, obj, either } from '../combinators'
 import * as $ from '../primitives'
 import { ValidationError, ValidationTypeError, ValidationMemberError, ValidationErrors } from '../errors'
 import { ok, error } from '../result'
+import { Transformer } from '../transformer'
 
 describe('nullable', () => {
   it('makes a provided transformer to allow `null`', () => {
@@ -107,6 +108,24 @@ describe('obj', () => {
       )
       expect(obj({ a: $.any }).inverseTransform({ a: undefined })).toEqual(
         error(new ValidationError(['a'], new ValidationMemberError())),
+      )
+    })
+  })
+})
+
+describe('either', () => {
+  it('creates a transformer with provided transformer(s)', () => {
+    expect(either($.string, $.number).transform(10)).toEqual(ok(10))
+  })
+
+  describe('created transformer', () => {
+    it('allows values which can be transformed with one of provided transformer', () => {
+      expect(either($.string, $.number).transform('hoge')).toEqual(ok('hoge'))
+    })
+
+    it('disallows values which can not be transformed with all transformers', () => {
+      expect(either($.string, $.number).transform(null)).toEqual(
+        error(ValidationError.from(new ValidationTypeError('number', 'null'))),
       )
     })
   })

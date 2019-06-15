@@ -1,9 +1,21 @@
 {
   "name": "transform-ts",
   "version": "0.0.2",
-  "repository": "ssh://git@github.com/Tosuke/transform-ts.git",
   "author": "Tosuke <tasukeprg@gmail.com>",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Tosuke/transform-ts.git"
+  },
+  "bugs": "https://github.com/Tosuke/transform-ts/issues",
+  "homepage": "https://github.com/Tosuke/transform-ts",
+  "keywords": [
+    "validator",
+    "validation",
+    "validate",
+    "transform",
+    "typescript"
+  ],
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [

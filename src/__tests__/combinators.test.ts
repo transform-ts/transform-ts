@@ -116,6 +116,7 @@ describe('obj', () => {
 describe('either', () => {
   it('creates a transformer with provided transformer(s)', () => {
     expect(either($.string, $.number).transform(10)).toEqual(ok(10))
+    expect(either($.string.invert()).inverseTransform('hoge')).toEqual(ok('hoge'))
   })
 
   describe('created transformer', () => {
@@ -126,6 +127,9 @@ describe('either', () => {
     it('disallows values which can not be transformed with all transformers', () => {
       expect(either($.string, $.number).transform(null)).toEqual(
         error(ValidationError.from(new ValidationTypeError('number', 'null'))),
+      )
+      expect(either($.string.invert()).inverseTransform(null)).toEqual(
+        error(ValidationError.from(new ValidationTypeError('string', 'null'))),
       )
     })
   })

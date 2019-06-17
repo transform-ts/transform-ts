@@ -2,7 +2,7 @@ import { Transformer } from './transformer'
 import { ok, error, combine, ValidationResult, isOk, Result } from './result'
 import { ValidationTypeError, ValidationError, ValidationMemberError } from './errors'
 import { toTypeName } from './util'
-import { number } from './primitives'
+import { number, string } from './primitives'
 
 export function optional<A, B>(fab: Transformer<A, B>): Transformer<A | undefined, B | undefined> {
   return new Transformer(
@@ -100,15 +100,26 @@ export function obj<A>(schema: MapTransformer<A>): Transformer<unknown, A> {
   )
 }
 
-export function either<TS extends [any, ...any[]]>(
-  ...fs: { [K in keyof TS]: Transformer<unknown, TS[K]> }
-): Transformer<unknown, TS[number]> {
-  return new Transformer(a => {
-    let result: ValidationResult<TS[number]>
-    for (const f of fs) {
-      result = f.transform(a)
-      if (isOk(result)) return result
-    }
-    return result!
-  }, ok)
+export function either<
+  TS extends [Transformer<A, any>, ...Transformer<A, any>[]],
+  A = TS[0] extends Transformer<infer B, any> ? B : never
+>(...fs: TS): Transformer<A, TS[number] extends Transformer<A, infer R> ? R : never> {
+  return new Transformer(
+    (a): ValidationResult<any> => {
+      let result: ValidationResult<any>
+      for (const f of fs) {
+        result = f.transform(a)
+        if (isOk(result)) return result
+      }
+      return result!
+    },
+    v => {
+      let result: ValidationResult<A>
+      for (const f of fs) {
+        result = f.inverseTransform(v)
+        if (isOk(result)) return result
+      }
+      return result!
+    },
+  )
 }

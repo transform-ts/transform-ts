@@ -2,7 +2,6 @@ import { Transformer } from './transformer'
 import { ok, error } from './result'
 import { ValidationTypeError, ValidationError } from './errors'
 import { toTypeName } from './util'
-import { tsUnknownKeyword } from '@babel/types'
 
 const transformerCache = new Map<unknown, Transformer<unknown, any>>()
 

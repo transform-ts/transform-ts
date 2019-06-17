@@ -2,7 +2,6 @@ import { nullable, optional, array, tuple, obj, either } from '../combinators'
 import * as $ from '../primitives'
 import { ValidationError, ValidationTypeError, ValidationMemberError, ValidationErrors } from '../errors'
 import { ok, error } from '../result'
-import { Transformer } from '../transformer'
 
 describe('nullable', () => {
   it('makes a provided transformer to allow `null`', () => {

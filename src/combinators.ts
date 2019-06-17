@@ -1,8 +1,7 @@
 import { Transformer } from './transformer'
-import { ok, error, combine, ValidationResult, isOk, Result } from './result'
+import { ok, error, combine, ValidationResult, isOk } from './result'
 import { ValidationTypeError, ValidationError, ValidationMemberError } from './errors'
 import { toTypeName } from './util'
-import { number, string } from './primitives'
 
 export function optional<A, B>(fab: Transformer<A, B>): Transformer<A | undefined, B | undefined> {
   return new Transformer(

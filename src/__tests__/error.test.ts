@@ -1,4 +1,4 @@
-import { ValidationError } from '../errors'
+import { ValidationError } from '..'
 
 describe('ValidationError', () => {
   describe('.pathString', () => {

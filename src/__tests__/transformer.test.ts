@@ -1,6 +1,4 @@
-import { Transformer } from '../transformer'
-import { ValidationError } from '../errors'
-import { ok, error } from '../result'
+import { Transformer, ValidationError, ok, error } from '..'
 
 describe('Transformer', () => {
   let transformer: Transformer<string, number>

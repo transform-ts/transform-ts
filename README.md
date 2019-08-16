@@ -23,7 +23,7 @@ It also has `B` to `A` (inverse) transformation.
 ### Transformation
 
 ```ts
-import * as $ from 'transform-ts'
+import $, { Transformer, ValidationResult } from 'transform-ts'
 
 declare const fab: Transformer<A, B>
 
@@ -135,7 +135,7 @@ user.json
 ```
 
 ```ts
-import * as $ from 'transform-ts'
+import $, { Transformer } from 'transform-ts'
 
 const userTransformer: Transformer<
   unknown,
@@ -177,7 +177,9 @@ You can use `$.ok` and `$.error` to create `ValidationResult`.
 Returning `$.ok(value)` represents that transformation is success with `value`.
 Returning `$.error(error)` represents that error(s) has occured.
 */
-const stringToDate = new $.Transformer<string, Date>(str => $.ok(new Date(str)), date => $.ok(date.toISOString()))
+import $, { Transformer, ok } from 'transform-ts'
+
+const stringToDate = new Transformer<string, Date>(str => ok(new Date(str)), date => ok(date.toISOString()))
 
 const date = stringToDate.transformOrThrow('2019-05-01T15:13:34.459Z')
 const dateString = stringToDate.inverseTransformOrThrow(new Date())

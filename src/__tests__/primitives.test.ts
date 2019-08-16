@@ -1,6 +1,4 @@
-import * as $ from '../primitives'
-import { ValidationError, ValidationTypeError } from '../errors'
-import { ok, error } from '../result'
+import $, { ValidationError, ValidationTypeError, ok, error } from '..'
 
 describe('instanceOf', () => {
   class A {}

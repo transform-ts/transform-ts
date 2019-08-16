@@ -1,5 +1,22 @@
 export { Transformer } from './transformer'
 export { ValidationError, ValidationTypeError, ValidationMemberError, ValidationErrors } from './errors'
 export { Result, ValidationResult, ok, error, isOk, isError } from './result'
-export { any, number, string, boolean } from './primitives'
-export { nullable, optional, array, tuple, obj } from './combinators'
+
+import { any, number, string, boolean, literal, typeOf, instanceOf } from './primitives'
+import { nullable, optional, array, tuple, obj, either } from './combinators'
+
+export default {
+  any,
+  number,
+  string,
+  boolean,
+  literal,
+  typeOf,
+  instanceOf,
+  nullable,
+  optional,
+  array,
+  tuple,
+  obj,
+  either,
+}

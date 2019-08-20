@@ -139,6 +139,9 @@ describe('withDefaults', () => {
   it('creates a transformer with provided transformer', () => {
     expect($.withDefault($.string, 'hoge').transform(null)).toEqual(ok('hoge'))
   })
+  it('does not affect an inverse transform', () => {
+    expect($.withDefault($.nullable($.number), 43).inverseTransform(null)).toEqual(ok(null))
+  })
 
   describe('created transformers', () => {
     it('allows null/undefined and returns default value', () => {

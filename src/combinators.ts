@@ -122,3 +122,13 @@ export function either<
     },
   )
 }
+
+export function withDefault<A, B>(f: Transformer<A, B>, defaultValue: B): Transformer<A | null | undefined, B> {
+  return new Transformer(
+    a => {
+      if (a === null || a === undefined) return ok(defaultValue)
+      return f.transform(a)
+    },
+    b => f.inverseTransform(b)
+  )
+}

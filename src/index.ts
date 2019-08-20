@@ -3,7 +3,7 @@ export { ValidationError, ValidationTypeError, ValidationMemberError, Validation
 export { Result, ValidationResult, ok, error, isOk, isError } from './result'
 
 import { any, number, string, boolean, literal, typeOf, instanceOf } from './primitives'
-import { nullable, optional, array, tuple, obj, either } from './combinators'
+import { nullable, optional, array, tuple, obj, either, withDefault } from './combinators'
 
 export default {
   any,
@@ -19,4 +19,5 @@ export default {
   tuple,
   obj,
   either,
+  withDefault,
 }

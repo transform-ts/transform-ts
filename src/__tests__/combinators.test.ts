@@ -134,3 +134,19 @@ describe('either', () => {
     })
   })
 })
+
+describe('withDefaults', () => {
+  it('creates a transformer with provided transformer', () => {
+    expect($.withDefault($.string, 'hoge').transform(null)).toEqual(ok('hoge'))
+  })
+
+  describe('created transformers', () => {
+    it('allows null/undefined and returns default value', () => {
+      expect($.withDefault($.string, 'aaa').transform(undefined)).toEqual(ok('aaa'))
+    })
+    it("does't return default value with falsy values except null/undefined", () => {
+      expect($.withDefault($.string, 'aaa').transform('')).toEqual(ok(''))
+      expect($.withDefault($.number, 10).transform(0)).toEqual(ok(0))
+    })
+  })
+})

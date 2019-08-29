@@ -27,7 +27,7 @@
     "test": "jest",
     "build": "tsc -p tsconfig.build.json",
     "format": "prettier --write \"src/**/*.ts\"",
-    "prepublish": "npm run build"
+    "prepublishOnly": "npm run build"
   },
   "devDependencies": {
     "@tosuke/prettier-config": "^1.0.1",

@@ -37,16 +37,6 @@ const b1: B = fab.transformOrThrow(validA)
 const b2: B = fab.transformOrThrow(invalidA) // Throw Error!
 ```
 
-### Inversion
-
-`Transformer<A,B>` can become `Transformer<B,A>`
-
-```ts
-declare const fab: Transformer<A, B>
-
-const fba: Transformer<B, A> = fab.invert()
-```
-
 ### Composition
 
 `Transformer<A,B>` is composable to `Tranformer<B,C>`.
@@ -179,7 +169,7 @@ Returning `$.error(error)` represents that error(s) has occured.
 */
 import $, { Transformer, ok } from 'transform-ts'
 
-const stringToDate = new Transformer<string, Date>(str => ok(new Date(str)), date => ok(date.toISOString()))
+const stringToDate = new Transformer<string, Date>(str => ok(new Date(str)))
 
 const date = stringToDate.transformOrThrow('2019-05-01T15:13:34.459Z')
 const dateString = stringToDate.inverseTransformOrThrow(new Date())

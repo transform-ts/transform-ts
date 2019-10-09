@@ -38,14 +38,6 @@ describe('any', () => {
     expect($.any.transform(true)).toEqual(ok(true))
     expect($.any.transform(null)).toEqual(error(ValidationError.from(new ValidationTypeError('any', 'null'))))
     expect($.any.transform(undefined)).toEqual(error(ValidationError.from(new ValidationTypeError('any', 'undefined'))))
-
-    expect($.any.inverseTransform(10)).toEqual(ok(10))
-    expect($.any.inverseTransform('str')).toEqual(ok('str'))
-    expect($.any.inverseTransform(true)).toEqual(ok(true))
-    expect($.any.inverseTransform(null)).toEqual(error(ValidationError.from(new ValidationTypeError('any', 'null'))))
-    expect($.any.inverseTransform(undefined)).toEqual(
-      error(ValidationError.from(new ValidationTypeError('any', 'undefined'))),
-    )
   })
 })
 

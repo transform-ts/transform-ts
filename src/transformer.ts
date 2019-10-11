@@ -1,21 +1,23 @@
-import { ValidationResult, isOk } from './result'
+import { ValidationResult, isOk, ok } from './result'
 import { ValidationErrors } from './errors'
 
 type TransformFn<A, B> = (x: A) => ValidationResult<B>
 
 export class Transformer<A, B> {
-  private _transformer: TransformFn<A, B>
-
   static from<A, B>(f: TransformFn<A, B>): Transformer<A, B> {
-    return new Transformer(f)
+    return new Transformer([f])
   }
 
-  private constructor(transformer: TransformFn<A, B>) {
-    this._transformer = transformer
-  }
+  private constructor(protected _transformers: TransformFn<any, any>[]) {}
 
   transform(x: A): ValidationResult<B> {
-    return this._transformer(x)
+    let result: any = x
+    for (let i = 0; i < this._transformers.length; i++) {
+      const r = this._transformers[i](result)
+      if (r.type === 'error') return r
+      result = r.value
+    }
+    return ok(result)
   }
 
   transformOrThrow(x: A): B {
@@ -28,9 +30,6 @@ export class Transformer<A, B> {
   }
 
   compose<C>(fbc: Transformer<B, C>): Transformer<A, C> {
-    return new Transformer<A, C>(a => {
-      const r = this.transform(a)
-      return isOk(r) ? fbc.transform(r.value) : r
-    })
+    return new Transformer<A, C>([...this._transformers, ...fbc._transformers])
   }
 }

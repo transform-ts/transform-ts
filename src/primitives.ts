@@ -19,7 +19,7 @@ export function typeOf(
   if (transformerCache.has(type)) return transformerCache.get(type)!
   const transform = (u: unknown) =>
     typeof u === type ? ok(u) : error(ValidationError.from(new ValidationTypeError(type, toTypeName(u))))
-  const transformer = new Transformer<unknown, any>(transform)
+  const transformer = Transformer.from<unknown, any>(transform)
   transformerCache.set(type, transformer)
   return transformer
 }
@@ -28,7 +28,7 @@ export function instanceOf<A>(Clazz: { new (...args: any[]): A }): Transformer<u
   if (transformerCache.has(Clazz)) return transformerCache.get(Clazz)!
   const transform = (u: unknown) =>
     u instanceof Clazz ? ok(u) : error(ValidationError.from(new ValidationTypeError(Clazz.name, toTypeName(u))))
-  const transformer = new Transformer<unknown, A>(transform)
+  const transformer = Transformer.from<unknown, A>(transform)
   transformerCache.set(Clazz, transformer)
   return transformer
 }
@@ -41,13 +41,13 @@ export function literal<LS extends string[]>(...literals: LS): Transformer<unkno
     if (!literals.includes(u)) return error(ValidationError.from(new ValidationTypeError(expectedTypeStr, `'${u}'`)))
     return ok(u as LS[number])
   }
-  return new Transformer<unknown, LS[number]>(transform)
+  return Transformer.from<unknown, LS[number]>(transform)
 }
 
 const noNullOrUndefined = (u: unknown) =>
   u != null ? ok(u) : error(ValidationError.from(new ValidationTypeError('any', toTypeName(u))))
 
-export const any = new Transformer<unknown, unknown>(noNullOrUndefined)
+export const any = Transformer.from<unknown, unknown>(noNullOrUndefined)
 
 export const number = typeOf('number')
 export const string = typeOf('string')

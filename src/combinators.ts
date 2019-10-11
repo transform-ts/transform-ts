@@ -4,11 +4,11 @@ import { ValidationTypeError, ValidationError, ValidationMemberError } from './e
 import { toTypeName } from './util'
 
 export function optional<A, B>(fab: Transformer<A, B>): Transformer<A | undefined, B | undefined> {
-  return new Transformer(a => (a === undefined ? ok(undefined) : fab.transform(a)))
+  return Transformer.from(a => (a === undefined ? ok(undefined) : fab.transform(a)))
 }
 
 export function nullable<A, B>(fab: Transformer<A, B>): Transformer<A | null, B | null> {
-  return new Transformer(a => (a === null ? ok(null) : fab.transform(a)))
+  return Transformer.from(a => (a === null ? ok(null) : fab.transform(a)))
 }
 
 function processArrayItem<T>(r: ValidationResult<T>, i: number): ValidationResult<T> {
@@ -19,7 +19,7 @@ function processArrayItem<T>(r: ValidationResult<T>, i: number): ValidationResul
 }
 
 export function array<A>(f: Transformer<unknown, A>): Transformer<unknown, A[]> {
-  return new Transformer<unknown, A[]>(u =>
+  return Transformer.from<unknown, A[]>(u =>
     Array.isArray(u)
       ? combine(u.map((v, i) => processArrayItem(f.transform(v), i)))
       : error(ValidationError.from(new ValidationTypeError('array', toTypeName(u)))),
@@ -35,7 +35,7 @@ class InvalidLengthError extends Error {
 
 type MapTransformer<A> = { [K in keyof A]: Transformer<unknown, A[K]> }
 export function tuple<TS extends any[]>(...fs: MapTransformer<TS>): Transformer<unknown, TS> {
-  return new Transformer<unknown, TS>(u => {
+  return Transformer.from<unknown, TS>(u => {
     if (!Array.isArray(u)) return error(ValidationError.from(new ValidationTypeError('array', toTypeName(u))))
     if (u.length !== fs.length) return error(ValidationError.from(new InvalidLengthError(fs.length, u.length)))
     return (combine(fs.map((f, i) => processArrayItem(f.transform(u[i]), i))) as unknown) as ValidationResult<TS>
@@ -55,7 +55,7 @@ export function obj<A>(schema: MapTransformer<A>): Transformer<unknown, A> {
   const s = (schema as unknown) as {
     [key: string]: Transformer<unknown, A[keyof A]>
   }
-  return new Transformer<unknown, A>((u: any) => {
+  return Transformer.from<unknown, A>((u: any) => {
     if (typeof u !== 'object') return error(ValidationError.from(new ValidationTypeError('object', toTypeName(u))))
     if (u === null) return error(ValidationError.from(new ValidationTypeError('object', 'null')))
 
@@ -77,7 +77,7 @@ export function either<
   TS extends [Transformer<A, any>, ...Transformer<A, any>[]],
   A = TS[0] extends Transformer<infer B, any> ? B : never
 >(...fs: TS): Transformer<A, TS[number] extends Transformer<A, infer R> ? R : never> {
-  return new Transformer(
+  return Transformer.from(
     (a): ValidationResult<any> => {
       let result: ValidationResult<any>
       for (const f of fs) {
@@ -90,7 +90,7 @@ export function either<
 }
 
 export function withDefault<A, B>(f: Transformer<A, B>, defaultValue: B): Transformer<A | null | undefined, B> {
-  return new Transformer(a => {
+  return Transformer.from(a => {
     if (a === null || a === undefined) return ok(defaultValue)
     return f.transform(a)
   })

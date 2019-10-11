@@ -6,7 +6,11 @@ type TransformFn<A, B> = (x: A) => ValidationResult<B>
 export class Transformer<A, B> {
   private _transformer: TransformFn<A, B>
 
-  constructor(transformer: TransformFn<A, B>) {
+  static from<A, B>(f: TransformFn<A, B>): Transformer<A, B> {
+    return new Transformer(f)
+  }
+
+  private constructor(transformer: TransformFn<A, B>) {
     this._transformer = transformer
   }
 
@@ -24,11 +28,9 @@ export class Transformer<A, B> {
   }
 
   compose<C>(fbc: Transformer<B, C>): Transformer<A, C> {
-    return new Transformer<A, C>(
-      a => {
-        const r = this.transform(a)
-        return isOk(r) ? fbc.transform(r.value) : r
-      },
-    )
+    return new Transformer<A, C>(a => {
+      const r = this.transform(a)
+      return isOk(r) ? fbc.transform(r.value) : r
+    })
   }
 }

@@ -169,7 +169,7 @@ Returning `$.error(error)` represents that error(s) has occured.
 */
 import $, { Transformer, ok } from 'transform-ts'
 
-const stringToDate = new Transformer<string, Date>(str => ok(new Date(str)))
+const stringToDate = Transformer.from<string, Date>(str => ok(new Date(str)))
 
 const date = stringToDate.transformOrThrow('2019-05-01T15:13:34.459Z')
 const dateString = stringToDate.inverseTransformOrThrow(new Date())

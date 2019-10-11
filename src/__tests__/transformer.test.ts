@@ -1,4 +1,5 @@
 import { Transformer, ValidationError, ok, error } from '..'
+import { identity } from '../transformer'
 
 describe('Transformer', () => {
   let transformer: Transformer<string, number>
@@ -25,6 +26,31 @@ describe('Transformer', () => {
 
     expect(composed.transform('10')).toEqual(ok(true))
     expect(composed.transform('ten')).toEqual(error(ValidationError.from('Invalid Input')))
+  })
+
+  describe('with', () => {
+    it('selects transformers with an input value', () => {
+      const stringToNumber = Transformer.with<string, number>(str =>
+        str.startsWith('0x')
+          ? Transformer.from(s => ok(parseInt(s.slice(2), 16)))
+          : Transformer.from(s => ok(parseInt(s, 10))),
+      )
+      expect(stringToNumber.transform('10')).toEqual(ok(10))
+      expect(stringToNumber.transform('0x10')).toEqual(ok(0x10))
+    })
+  })
+
+  describe('.chain', () => {
+    it('chains a transformer', () => {
+      const stringToNumber = identity<string>().chain(str =>
+        str.startsWith('0x')
+          ? Transformer.from(s => ok(parseInt(s.slice(2), 16)))
+          : Transformer.from(s => ok(parseInt(s, 10))),
+      )
+
+      expect(stringToNumber.transform('10')).toEqual(ok(10))
+      expect(stringToNumber.transform('0x10')).toEqual(ok(0x10))
+    })
   })
 
   test('Associative Law', () => {

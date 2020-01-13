@@ -7,6 +7,10 @@ export type Validator<A> = Transformer<A, A>
 
 export const identity = <A>() => Transformer.from<A, A>(ok)
 
+export namespace Transformer {
+  export type TypeOf<T> = T extends Transformer<any, infer B> ? B : never
+}
+
 export class Transformer<A, B> {
   static from<A, B>(f: TransformFn<A, B>): Transformer<A, B> {
     return new Transformer([f])
@@ -43,7 +47,7 @@ export class Transformer<A, B> {
   chain<C>(f: (x: B) => Transformer<A, C>): Transformer<A, C> {
     return Transformer.from(a => {
       const r = this.transform(a)
-      if(r.type === 'error') return r
+      if (r.type === 'error') return r
       return f(r.value).transform(a)
     })
   }
@@ -53,10 +57,10 @@ export class Transformer<A, B> {
   }
 
   when(cond: (x: B) => boolean, validator: Validator<B>): Transformer<A, B> {
-    return this.compose(Transformer.from(b => cond(b) ? validator.transform(b) : ok(b)))
+    return this.compose(Transformer.from(b => (cond(b) ? validator.transform(b) : ok(b))))
   }
 
   unless(cond: (x: B) => boolean, validator: Validator<B>): Transformer<A, B> {
-    return this.compose(Transformer.from(b => cond(b) ? ok(b) : validator.transform(b)))
+    return this.compose(Transformer.from(b => (cond(b) ? ok(b) : validator.transform(b))))
   }
 }

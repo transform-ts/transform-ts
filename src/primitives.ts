@@ -27,25 +27,28 @@ const noNullOrUndefined = (u: unknown) =>
 export const any = Transformer.from<unknown, unknown>(noNullOrUndefined)
 
 export const number = Transformer.from<unknown, number>(u => {
-  if (typeof u !== 'number') {
+  const n = u instanceof Number ? u.valueOf() : u
+  if (typeof n !== 'number') {
     return error(ValidationError.from(new ValidationTypeError('number', toTypeName(u))))
   }
-  if (Number.isNaN(u)) {
+  if (Number.isNaN(n)) {
     return error(ValidationError.from(new ValidationNaNError()))
   }
-  return ok(u)
+  return ok(n)
 })
 
 export const string = Transformer.from<unknown, string>(u => {
-  if (typeof u !== 'string') {
+  const s = u instanceof String ? u.valueOf() : u
+  if (typeof s !== 'string') {
     return error(ValidationError.from(new ValidationTypeError('string', toTypeName(u))))
   }
-  return ok(u)
+  return ok(s)
 })
 
 export const boolean = Transformer.from<unknown, boolean>(u => {
-  if (typeof u !== 'boolean') {
+  const b = u instanceof Boolean ? u.valueOf() : u
+  if (typeof b !== 'boolean') {
     return error(ValidationError.from(new ValidationTypeError('boolean', toTypeName(u))))
   }
-  return ok(u)
+  return ok(b)
 })

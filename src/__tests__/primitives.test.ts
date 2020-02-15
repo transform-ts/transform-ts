@@ -44,6 +44,7 @@ describe('any', () => {
 describe('number', () => {
   it('allows numeric values', () => {
     expect($.number.transform(10)).toEqual(ok(10))
+    expect($.number.transform(new Number(10))).toEqual(ok(10))
     expect($.number.transform('10')).toEqual(error(ValidationError.from(new ValidationTypeError('number', 'string'))))
   })
 })
@@ -51,6 +52,7 @@ describe('number', () => {
 describe('string', () => {
   it('allows string values', () => {
     expect($.string.transform('str')).toEqual(ok('str'))
+    expect($.string.transform(new String('str'))).toEqual(ok('str'))
     expect($.string.transform(10)).toEqual(error(ValidationError.from(new ValidationTypeError('string', 'number'))))
   })
 })
@@ -59,6 +61,7 @@ describe('boolean', () => {
   it('allows boolean values', () => {
     expect($.boolean.transform(true)).toEqual(ok(true))
     expect($.boolean.transform(false)).toEqual(ok(false))
+    expect($.boolean.transform(new Boolean(true))).toEqual(ok(true))
     expect($.boolean.transform(10)).toEqual(error(ValidationError.from(new ValidationTypeError('boolean', 'number'))))
   })
 })

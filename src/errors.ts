@@ -48,6 +48,13 @@ export class ValidationMemberError extends Error {
   }
 }
 
+export class ValidationNaNError extends Error {
+  constructor() {
+    super('Not a Number')
+    this.name = 'ValidationNaNError'
+  }
+}
+
 export class ValidationErrors extends Error {
   constructor(readonly errors: ReadonlyArray<ValidationError>) {
     super('\n' + errors.map(e => e.message).join('\n'))

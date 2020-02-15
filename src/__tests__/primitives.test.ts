@@ -41,6 +41,12 @@ describe('any', () => {
   })
 })
 
+describe('never', () => {
+  it('disallows all values', () => {
+    expect($.never.transform(10)).toEqual(error(ValidationError.from(new ValidationTypeError('never', 'number'))))
+  })
+})
+
 describe('number', () => {
   it('allows numeric values', () => {
     expect($.number.transform(10)).toEqual(ok(10))

@@ -26,6 +26,10 @@ const noNullOrUndefined = (u: unknown) =>
 
 export const any = Transformer.from<unknown, unknown>(noNullOrUndefined)
 
+export const never = Transformer.from<unknown, never>(u =>
+  error(ValidationError.from(new ValidationTypeError('never', toTypeName(u)))),
+)
+
 export const number = Transformer.from<unknown, number>(u => {
   const n = u instanceof Number ? u.valueOf() : u
   if (typeof n !== 'number') {

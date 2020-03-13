@@ -1,5 +1,4 @@
-import { Transformer } from './transformer'
-import { ok, error } from './result'
+/*import { ok, error } from './result'
 import { ValidationTypeError, ValidationError } from './errors'
 import { toTypeName } from './util'
 
@@ -52,3 +51,15 @@ export const any = Transformer.from<unknown, unknown>(noNullOrUndefined)
 export const number = typeOf('number')
 export const string = typeOf('string')
 export const boolean = typeOf('boolean')
+*/
+
+import { Transformer } from './transformer'
+import { Result } from './result'
+import { toTypeName } from './util'
+import { ValidationTypeError } from './errors'
+
+export const number: Transformer<unknown, number, ValidationTypeError> = input => {
+  if (typeof input !== 'number') return Result.err(new ValidationTypeError('number', toTypeName(input)))
+  if (Number.isNaN(input)) return Result.err(new ValidationTypeError('number', 'NaN'))
+  return Result.ok(input)
+}

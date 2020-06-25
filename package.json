@@ -31,7 +31,7 @@
   },
   "devDependencies": {
     "@tosuke/prettier-config": "^1.0.1",
-    "@types/jest": "^26.0.0",
+    "@types/jest": "^26.0.3",
     "codecov": "^3.6.5",
     "jest": "^24.9.0",
     "prettier": "^1.19.1",
